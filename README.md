@@ -1,3 +1,5 @@
+## make repo/git init
+
 ## npm init
 
 npm init
@@ -40,10 +42,13 @@ npm install --save-dev webpack-cli
 npm install --save-dev webpack-dev-server
 npm install --save-dev html-webpack-plugin
 npm install --save-dev react-hot-loader
-npm install file-loader --save-dev
+~~npm install file-loader --save-dev~~
+~~npm install --save-dev favicons favicons-webpack-plugin~~
 
 npm install react
 npm install react react-dom
 
-todo install eslint modules, stylelint modules, ghpages,prettier
+todo install eslint modules, stylelint modules, ghpages, prettier
 todo make repo
+
+todo uninstall file loader, favicon

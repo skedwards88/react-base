@@ -13,32 +13,30 @@ module.exports = {
         options: { presets: ["@babel/env"] },
       },
       {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"],
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
       },
       {
-        test: /\.(png|svg|jpg|gif)$/,
-        use: ["file-loader"],
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
       },
     ],
   },
   resolve: { extensions: ["*", ".js", ".jsx"] },
   output: {
-    path: path.resolve(__dirname, "dist/"),
     publicPath: "",
     filename: "bundle.js",
-  },
+    path: path.resolve(__dirname, 'dist'),
+    clean: true, // removes unused files from output dir
+ },
   devServer: {
-    // contentBase: path.join(__dirname, "public/"),
-    port: 3000,
-    // publicPath: "http://localhost:3000",
-    // hotOnly: false,
+    static: './dist',
   },
   plugins: [
     new HtmlWebpackPlugin({
-      inject: true,
       // Need to use template because need 'root' div for react injection. templateContent doesn't play nice with title, so just use a template file instead.
       template: "./src/index.html",
+      favicon: "./src/images/favicon.png",
     }),
   ],
 };
