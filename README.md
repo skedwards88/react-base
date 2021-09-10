@@ -137,7 +137,7 @@ Your repo settings should specify that GitHub Pages is build from the `gh-pages`
 
 ### Inspect
 
-Verify the site: https://github.com/skedwards88/repo-name/settings/pages
+Verify the site: https://skedwards88.github.io/repo-name/
 
 ## Linters
 
