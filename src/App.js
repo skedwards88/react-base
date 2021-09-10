@@ -13,7 +13,7 @@ function App() {
       <h1>Testing...</h1>
       <img src={IconSVG}></img>
       <img src={IconPNG}></img>
-      <button onClick={(e) => myFunct()}>CLICK</button>
+      <button onClick={() => myFunct()}>CLICK</button>
     </div>
   );
 }
