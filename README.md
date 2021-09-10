@@ -40,7 +40,7 @@
 
 Add a start and build script:
 
-```  
+```
 "scripts": {
     "start": "webpack-dev-server --mode development",
     "build": "webpack",
@@ -65,7 +65,7 @@ Add a predeploy and deploy script. The `dist` in the predeploy script should cha
 ```
 "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist" 
+    "deploy": "gh-pages -d dist"
   },
 ```
 
@@ -120,4 +120,3 @@ To run `npx eslint .`
 Copy from https://github.com/skedwards88/config to run the linters automatically
 
 ## Actions
-
