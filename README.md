@@ -234,6 +234,7 @@ Add to the plugins list in `webpack.config.js`:
       devMode: 'webapp', // optional can be 'webapp' or 'light' - 'light' by default
       favicons: {
         appName: 'my-app',
+        start_url: ".",
         appDescription: 'My awesome App',
         developerName: 'Me',
         developerURL: null, // prevent retrieving from the nearest package.json
