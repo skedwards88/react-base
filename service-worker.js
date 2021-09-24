@@ -264,7 +264,7 @@ define("./service-worker.js",['./workbox-718aa5be'], function (workbox) { 'use s
     "revision": "828e1ca3f13a62469e97d211220c1d51"
   }, {
     "url": "assets/manifest.json",
-    "revision": "8940a039be2fa0f78f65b7f9549b96a4"
+    "revision": "42477c15d9df7badfb500967d72e947a"
   }, {
     "url": "assets/manifest.webapp",
     "revision": "f9d8e63ad4b10a7a0e1a1ee0c9663c3e"
@@ -285,7 +285,7 @@ define("./service-worker.js",['./workbox-718aa5be'], function (workbox) { 'use s
     "revision": "6c35513dbf2269cf386c80d73aa1da6e"
   }, {
     "url": "bundle.js",
-    "revision": "7dfd50a2631eb9bf59937718dbe8f464"
+    "revision": "18c225de655c994dbb37f9d6ca20e935"
   }, {
     "url": "d2b7505a34b8d54d5939.svg",
     "revision": null
