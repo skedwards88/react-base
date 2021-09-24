@@ -199,15 +199,18 @@ Now, when you run `npm build`, a `service-worker.js` file is built. A `workbox-#
 To `src/index.js` after the imports, add
 
 ```javascript
- if ('serviceWorker' in navigator) {
-   window.addEventListener('load', () => {
-     navigator.serviceWorker.register('/service-worker.js').then(registration => {
-       console.log('SW registered: ', registration);
-     }).catch(registrationError => {
-       console.log('SW registration failed: ', registrationError);
-     });
-   });
- }
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/service-worker.js")
+      .then((registration) => {
+        console.log("SW registered: ", registration);
+      })
+      .catch((registrationError) => {
+        console.log("SW registration failed: ", registrationError);
+      });
+  });
+}
 ```
 
 Now, if you load the page with internet connection, you will see a console log entry `SW Registered`. If you turn off internet connection in the dev tools, you can still load the page (and note that the `SW Registered` is not logged).
@@ -228,7 +231,7 @@ Add to the plugins list in `webpack.config.js`:
     new FaviconsWebpackPlugin({
       logo: "./src/images/favicon.png", // svg works too!
       mode: 'webapp', // optional can be 'webapp', 'light' or 'auto' - 'auto' by default
-      devMode: 'webapp', // optional can be 'webapp' or 'light' - 'light' by default 
+      devMode: 'webapp', // optional can be 'webapp' or 'light' - 'light' by default
       favicons: {
         appName: 'my-app',
         appDescription: 'My awesome App',

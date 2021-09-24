@@ -1,7 +1,7 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const WorkboxPlugin = require('workbox-webpack-plugin');
-const FaviconsWebpackPlugin = require('favicons-webpack-plugin')
+const WorkboxPlugin = require("workbox-webpack-plugin");
+const FaviconsWebpackPlugin = require("favicons-webpack-plugin");
 
 module.exports = {
   entry: "./src/index.js",
@@ -47,21 +47,20 @@ module.exports = {
     }),
     new FaviconsWebpackPlugin({
       logo: "./src/images/favicon.png", // svg works too!
-      mode: 'webapp', // optional can be 'webapp', 'light' or 'auto' - 'auto' by default
-      devMode: 'webapp', // optional can be 'webapp' or 'light' - 'light' by default 
+      mode: "webapp", // optional can be 'webapp', 'light' or 'auto' - 'auto' by default
+      devMode: "webapp", // optional can be 'webapp' or 'light' - 'light' by default
       favicons: {
-        appName: 'my-app',
-        appDescription: 'My awesome App',
-        developerName: 'Me',
+        appName: "my-app",
+        appDescription: "My awesome App",
+        developerName: "Me",
         developerURL: null, // prevent retrieving from the nearest package.json
-        background: '#ddd',
-        theme_color: '#333',
+        background: "#ddd",
+        theme_color: "#333",
         icons: {
           coast: false,
-          yandex: false
-        }
-      }
-    })
-     
+          yandex: false,
+        },
+      },
+    }),
   ],
 };
