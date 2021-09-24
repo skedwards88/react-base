@@ -51,7 +51,7 @@ module.exports = {
       devMode: "webapp", // optional can be 'webapp' or 'light' - 'light' by default
       favicons: {
         appName: "my-app",
-        start_url: ".",
+        start_url: "../.",
         appDescription: "My awesome App",
         developerName: "Me",
         developerURL: null, // prevent retrieving from the nearest package.json
