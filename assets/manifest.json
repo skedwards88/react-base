@@ -1,14 +1,14 @@
 {
-  "name": "my-app",
-  "short_name": "my-app",
-  "description": "My awesome App",
+  "name": "App name",
+  "short_name": "App name",
+  "description": "App description",
   "dir": "auto",
   "lang": "en-US",
   "display": "standalone",
   "orientation": "any",
   "start_url": "../.",
-  "background_color": "#ddd",
-  "theme_color": "#333",
+  "background_color": "#F1F0F0",
+  "theme_color": "#6e799e",
   "icons": [
     {
       "src": "android-chrome-36x36.png",
