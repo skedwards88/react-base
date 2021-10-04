@@ -109,6 +109,10 @@ on:
   push:
     branches: [main]
 
+concurrency: 
+  group: gh-pages
+  cancel-in-progress: true
+
 jobs:
   deploy:
     name: Deploy
@@ -133,7 +137,7 @@ jobs:
 
 ### Check settings
 
-Your repo settings should specify that GitHub Pages is build from the `gh-pages` branch: https://github.com/skedwards88/repo-name/settings/pages
+Your repo settings should specify that GitHub Pages is built from the `gh-pages` branch: https://github.com/skedwards88/repo-name/settings/pages
 
 ### Inspect
 
@@ -196,13 +200,15 @@ Now, when you run `npm build`, a `service-worker.js` file is built. A `workbox-#
 
 #### Register service worker
 
-To `src/index.js` after the imports, add
+To `src/index.js` after the imports, add:
 
 ```javascript
 if ("serviceWorker" in navigator) {
+  const path = (location.hostname === "localhost") ? "/service-worker.js" : "/repo-name/service-worker.js";
+  const scope = (location.hostname === "localhost") ? "" : '/repo-name/';
   window.addEventListener("load", () => {
     navigator.serviceWorker
-      .register("/service-worker.js")
+      .register(path, {scope: scope})
       .then((registration) => {
         console.log("SW registered: ", registration);
       })
@@ -213,13 +219,15 @@ if ("serviceWorker" in navigator) {
 }
 ```
 
+Prepending `repo-name` to the path and scope is required for working with GitHub pages since the page is hosted at `https://user-name.github.io/repo-name/`. This isn't true when running locally (or presumably when hosting from something other than GitHub pages).
+
 Now, if you load the page with internet connection, you will see a console log entry `SW Registered`. If you turn off internet connection in the dev tools, you can still load the page (and note that the `SW Registered` is not logged).
 
 #### Manifest
 
-Install this package, which will generate all of the different icons from a single icon, generate the manifest, and inject the icons and manifest into the html.
+Install this package (and the package that it wraps), which will generate all of the different icons from a single icon, generate the manifest, and inject the icons and manifest into the html.
 
-`npm install favicons-webpack-plugin --save-dev`
+`npm install --save-dev favicons favicons-webpack-plugin`
 
 Add to top of `webpack.config.js`:
 
@@ -227,34 +235,38 @@ Add to top of `webpack.config.js`:
 
 Add to the plugins list in `webpack.config.js`:
 
-```
+```javascript
     new FaviconsWebpackPlugin({
-      logo: "./src/images/favicon.png", // svg works too!
-      mode: 'webapp', // optional can be 'webapp', 'light' or 'auto' - 'auto' by default
-      devMode: 'webapp', // optional can be 'webapp' or 'light' - 'light' by default
+      logo: "./src/images/favicon.png",
+      mode: "webapp", // optional can be 'webapp', 'light' or 'auto' - 'auto' by default
+      devMode: "webapp", // optional can be 'webapp' or 'light' - 'light' by default
       favicons: {
-        appName: 'my-app',
-        start_url: ".",
-        appDescription: 'My awesome App',
-        developerName: 'Me',
+        appName: "App name",
+        short_name: "Short app name",
+        start_url: "../.",
+        appDescription: "App description",
+        display: "standalone",
+        developerName: "skedwards88",
         developerURL: null, // prevent retrieving from the nearest package.json
-        background: '#ddd',
-        theme_color: '#333',
+        background: "#F1F0F0",
+        theme_color: "#6e799e",
         icons: {
           coast: false,
-          yandex: false
-        }
-      }
+          yandex: false,
+        },
+      },
     })
 ```
 
-Add a logo to `./src/images/favicon.png`. (If using a different path or format, update the FaviconsWebpackPlugin inputs above.) Image size should be 1024x1024 pixels since the favicons package will scale the image up or down to generate different icon sizes. 1024x1024 pixels is the largest icon it generates.
+Add a logo to `./src/images/favicon.png`. (If using a different path or format, update the FaviconsWebpackPlugin `logo` input above.) Image size should be 1024x1024 pixels since the favicons package will scale the image up or down to generate different icon sizes. 1024x1024 pixels is the largest icon it generates.
 
-In the FaviconsWebpackPlugin inputs above, update the favicons properties with the values you want in the manifest.json.
+In the FaviconsWebpackPlugin inputs above, update the favicons properties with the values you want in the manifest.json. Specifically, set `appName`, `short_name`, `appDescription`, `developerName` to appropriate values.
 
 In the FaviconsWebpackPlugin inputs above, setting `mode` and `devMode` to `webapp` will cause all of the icons to be built even if webpack is run in developer mode. For a faster build, set to `light`. Alternatively, you can also toggle `mode` in the `webpack.config.js` file. You could also make `npm run build` accept a mode argument. (https://webpack.js.org/configuration/mode/)
 
 Alternatively, instead of using `favicons-webpack-plugin`, you could instead create all of the icons separately and use `copy-webpack-plugin` to copy the icons and manifest to the dist directory at build time.
+
+The value of `"../."` for `start_url` is required for this configuration to work, since the FaviconsWebpackPlugin puts the manifest.json file into an `assets` directory that is one level lower than where webpack puts `index.html`.
 
 `favicons-webpack-plugin` does not generate maskable icons.
 

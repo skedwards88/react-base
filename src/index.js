@@ -3,9 +3,11 @@ import ReactDOM from "react-dom";
 import App from "./App.js";
 
 if ("serviceWorker" in navigator) {
+  const path = (location.hostname === "localhost") ? "/service-worker.js" : "/react-base/service-worker.js";
+  const scope = (location.hostname === "localhost") ? "" : '/react-base/';
   window.addEventListener("load", () => {
     navigator.serviceWorker
-      .register("/service-worker.js")
+      .register(path, {scope: scope})
       .then((registration) => {
         console.log("SW registered: ", registration);
       })
