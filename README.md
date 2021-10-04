@@ -109,7 +109,7 @@ on:
   push:
     branches: [main]
 
-concurrency: 
+concurrency:
   group: gh-pages
   cancel-in-progress: true
 
@@ -204,11 +204,14 @@ To `src/index.js` after the imports, add:
 
 ```javascript
 if ("serviceWorker" in navigator) {
-  const path = (location.hostname === "localhost") ? "/service-worker.js" : "/repo-name/service-worker.js";
-  const scope = (location.hostname === "localhost") ? "" : '/repo-name/';
+  const path =
+    location.hostname === "localhost"
+      ? "/service-worker.js"
+      : "/repo-name/service-worker.js";
+  const scope = location.hostname === "localhost" ? "" : "/repo-name/";
   window.addEventListener("load", () => {
     navigator.serviceWorker
-      .register(path, {scope: scope})
+      .register(path, { scope: scope })
       .then((registration) => {
         console.log("SW registered: ", registration);
       })
@@ -236,26 +239,26 @@ Add to top of `webpack.config.js`:
 Add to the plugins list in `webpack.config.js`:
 
 ```javascript
-    new FaviconsWebpackPlugin({
-      logo: "./src/images/favicon.png",
-      mode: "webapp", // optional can be 'webapp', 'light' or 'auto' - 'auto' by default
-      devMode: "webapp", // optional can be 'webapp' or 'light' - 'light' by default
-      favicons: {
-        appName: "App name",
-        short_name: "Short app name",
-        start_url: "../.",
-        appDescription: "App description",
-        display: "standalone",
-        developerName: "skedwards88",
-        developerURL: null, // prevent retrieving from the nearest package.json
-        background: "#F1F0F0",
-        theme_color: "#6e799e",
-        icons: {
-          coast: false,
-          yandex: false,
-        },
-      },
-    })
+new FaviconsWebpackPlugin({
+  logo: "./src/images/favicon.png",
+  mode: "webapp", // optional can be 'webapp', 'light' or 'auto' - 'auto' by default
+  devMode: "webapp", // optional can be 'webapp' or 'light' - 'light' by default
+  favicons: {
+    appName: "App name",
+    short_name: "Short app name",
+    start_url: "../.",
+    appDescription: "App description",
+    display: "standalone",
+    developerName: "skedwards88",
+    developerURL: null, // prevent retrieving from the nearest package.json
+    background: "#F1F0F0",
+    theme_color: "#6e799e",
+    icons: {
+      coast: false,
+      yandex: false,
+    },
+  },
+});
 ```
 
 Add a logo to `./src/images/favicon.png`. (If using a different path or format, update the FaviconsWebpackPlugin `logo` input above.) Image size should be 1024x1024 pixels since the favicons package will scale the image up or down to generate different icon sizes. 1024x1024 pixels is the largest icon it generates.
