@@ -107,6 +107,10 @@ Add a start and build script:
 ## GitHub Pages
 
 Nice reference: https://create-react-app.dev/docs/deployment/
+  
+  ### Install `gh-pages`
+  
+  `npm install gh-pages --save-dev`
 
 ### Modify `package.json`
 
@@ -120,10 +124,6 @@ Add a predeploy and deploy script. The `dist` in the predeploy script should cha
     "deploy": "gh-pages -d dist"
   },
 ```
-
-### Install `gh-pages`
-
-`npm install gh-pages --save-dev`
 
 ### Test out deployment
 
@@ -244,12 +244,90 @@ Add to the plugins list in `webpack.config.js` add:
 
 Now, when you run `npm build`, a `service-worker.js` file is built. A `workbox-###.js` file is also built.
 
+Note: To prevent the `[webpack-dev-server] GenerateSW has been called multiple times, perhaps due to running webpack in --watch mode. The precache manifest generated after the first call may be inaccurate! Please see https://github.com/GoogleChrome/workbox/issues/1790 for more information.` error, you can skip using this plugin when in development mode. For example, the `webpack.config.js` can look like:
+
+```javascript
+const path = require("path");
+const WorkboxPlugin = require('workbox-webpack-plugin');
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+
+module.exports = (env, argv) => {
+
+  if (argv.mode === 'development') {
+    console.log('RUNNING IN DEV MODE. Service worker will not generate.')
+  } else {
+    console.log('RUNNING IN NON-DEV MODE. Service worker will generate.')
+  }
+
+  const htmlPlugin = new HtmlWebpackPlugin({
+    // Need to use template because need 'root' div for react injection. templateContent doesn't play nice with title, so just use a template file instead.
+    template: "./src/index.html"
+  })
+
+  const serviceWorkerPlugin = new WorkboxPlugin.GenerateSW({
+    // these options encourage the ServiceWorkers to get in there fast
+    // and not allow any straggling "old" SWs to hang around
+    clientsClaim: true,
+    skipWaiting: true,
+  })
+
+  const plugins = argv.mode === 'development' ? [htmlPlugin] : [htmlPlugin, serviceWorkerPlugin]
+
+  return {
+  entry: "./src/index.js",
+  mode: "production",
+  module: {
+    rules: [
+      {
+        test: /\.(js|jsx)$/,
+        exclude: /(node_modules|bower_components)/,
+        loader: "babel-loader",
+        options: { presets: ["@babel/env"] },
+      },
+      {
+        test: /\.css$/i,
+        use: ["style-loader", "css-loader"],
+      },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: "asset/resource",
+      },
+    ],
+  },
+  resolve: { extensions: ["*", ".js", ".jsx"] },
+  output: {
+    publicPath: "",
+    filename: "bundle.js",
+    path: path.resolve(__dirname, "dist"),
+    clean: true, // removes unused files from output dir
+  },
+  devServer: {
+    static: "./dist",
+  },
+  plugins: plugins,
+}
+};
+```
+
+And your `package.json` can have two scripts to start the server:
+
+```json
+  "scripts": {
+    "dev": "webpack-dev-server --mode development",
+    "start": "webpack-dev-server",
+  }
+```
+
+Running `npm run dev` will avoid generating the service worker. This is useful if you want to test out changes in the browser during development.
+
+Running `npm start` will generate the service worker. This is useful for testing your full app and making sure it works offline.
+
 ### Register the service worker
 
 To `src/index.js` after the imports, add:
 
 ```javascript
-if ("serviceWorker" in navigator) {
+if (process.env.NODE_ENV !== "development" && "serviceWorker" in navigator) {
   const path =
     location.hostname === "localhost"
       ? "/service-worker.js"
@@ -268,15 +346,123 @@ if ("serviceWorker" in navigator) {
 }
 ```
 
+Note that the service worker will not be registered if you are running the server in development mode (`process.env.NODE_ENV !== "development"`).
+
 (See [`src/index.js`](https://github.com/skedwards88/react-base/blob/main/src/index.js) for an example.)
 
 Replace `repo-name` with the name of your repo. Prepending `repo-name` to the path and scope is required for working with GitHub pages since the page is hosted at `https://user-name.github.io/repo-name/`. This isn't true when running locally (or presumably when hosting from something other than GitHub pages).
 
 Now, if you load the page with internet connection, you will see a console log entry `SW Registered`. If you turn off internet connection in the dev tools, you can still load the page (and note that the `SW Registered` is not logged).
 
-Note: When you make changes to your app while the app is running locally, you will likely see the browser constantly refresh with the error `[webpack-dev-server] GenerateSW has been called multiple times, perhaps due to running webpack in --watch mode. The precache manifest generated after the first call may be inaccurate! Please see https://github.com/GoogleChrome/workbox/issues/1790 for more information.`. Doing a hard refresh will stop the constant refreshes, and you can clear the error. I'm not sure how to fix this--please let me know if you know how!
+### Create the webapp manifest
 
-### Create the manifest
+Your progressive webapp should include a webapp manifest and favicons. You can either create these assets manually and copy them to your build, or you can use a plugin to generate and inject the assets for you.
+
+#### Creating manually and copying
+
+Manually create your icons and a manifest file. A good minimum set of favicons could include a `svg`, `ico`, 192x192 px `png`, 512x512 px `png`, and maskable `png`. You can create a maskable icon with https://maskable.app/editor.
+
+Manually create a `manifest.json` file. For example:
+
+```json
+{
+  "name": "App name",
+  "short_name": "Short app name",
+  "description": "App description",
+  "dir": "auto",
+  "lang": "en-US",
+  "display": "standalone",
+  "orientation": "any",
+  "start_url": "../.",
+  "background_color": "#FFFFFF",
+  "theme_color": "#262481",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    },
+    {
+      "src": "icon_192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon_512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    },
+    {
+      "src": "maskable_icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
+```
+
+Edit the `index.html` file to reference the manifest file and icons.
+
+```html
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>App Name</title>
+    <meta name="description" content="App description" />
+    <link rel="icon" href="assets/favicon.ico" sizes="any" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="assets/manifest.json" />
+    <link rel="apple-touch-icon" href="assets/icon_192.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#262481" />
+    <meta name="application-name" content="App title" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="App title" />
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <noscript> You need to enable JavaScript to run this app. </noscript>
+  </body>
+</html>
+```
+
+Install `copy-webpack-plugin`.
+
+`npm install --save-dev copy-webpack-plugin`
+
+To top of `webpack.config.js` add:
+
+`const CopyPlugin = require("copy-webpack-plugin");`
+
+Add to the plugins list in `webpack.config.js` add:
+
+```javascript
+new CopyPlugin({
+    patterns: [
+      { from: "./src/images/favicon.svg", to: "./assets/favicon.svg" },
+      { from: "./src/images/favicon.ico", to: "./assets/favicon.ico" },
+      { from: "./src/images/icon_192.png", to: "./assets/icon_192.png" },
+      { from: "./src/images/icon_512.png", to: "./assets/icon_512.png" },
+      { from: "./src/images/maskable_icon.png", to: "./assets/maskable_icon.png" },
+      { from: "./src/manifest.json", to: "./assets/manifest.json" },
+    ],
+    options: {
+      concurrency: 100,
+    },
+  });
+```
+
+Update the filepaths above if needed.
+
+#### Creating programmatically
 
 Install `favicons-webpack-plugin` (and the `favicons` package that it wraps), which will generate all of the different icons from a single icon, generate the manifest, and inject the icons and manifest into the html.
 
@@ -320,8 +506,6 @@ Add a logo to `./src/images/favicon.png`. (If using a different path or format, 
 The value of `"../."` for `start_url` is required for this configuration to work, since the FaviconsWebpackPlugin puts the manifest.json file into an `assets` directory that is one level lower than where webpack puts `index.html`.
 
 `favicons-webpack-plugin` does not generate maskable icons.
-
-Alternatively, instead of using `favicons-webpack-plugin`, you could instead create all of the icons separately and use `copy-webpack-plugin` to copy the icons and manifest to the dist directory at build time.
 
 ### Lighthouse
 
