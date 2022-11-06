@@ -106,15 +106,73 @@ Add a start and build script:
 
 ## GitHub Pages
 
+### Deployment
+
+You can write a Actions workflow to deploy to GitHub Pages. In your GitHub Pages settings (https://github.com/username/repo-name/settings/pages), specify that GitHub Pages is built from GitHub Actions.
+
+Add this workflow to the `.github/workflows` directory in your repo:
+
+```yaml
+name: Deploy static content to Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install requirements
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v2
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: "./dist/"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
+```
+
+### Deploying by pushing to a branch
+
+**NOTE**: This is the old method of deploying to GitHub Pages. This method is no longer recommended since you can now build GitHub Pages via a custom workflow instead of based on a push to main.
+
 Nice reference: https://create-react-app.dev/docs/deployment/
   
-  ### Install `gh-pages`
-  
+#### Install `gh-pages`
+
   `npm install gh-pages --save-dev`
 
-### Modify `package.json`
+#### Modify `package.json`
 
-Optinoally, change `homepage` to `"homepage": "https://username.github.io/repo-name/",`. Replace `username` and `repo-name`.
+Optionally, change `homepage` to `"homepage": "https://username.github.io/repo-name/",`. Replace `username` and `repo-name`.
 
 Add a predeploy and deploy script. The `dist` in the predeploy script should change if you told webpack to use a different output directory in `webpack.config.js`.:
 
@@ -125,13 +183,13 @@ Add a predeploy and deploy script. The `dist` in the predeploy script should cha
   },
 ```
 
-### Test out deployment
+#### Test out deployment
 
 `npm run deploy`
 
 This will push the build to a branch called `gh-pages`.
 
-### Set up automatic deployment
+#### Set up automatic deployment
 
 Add a workflow to deploy whenever a push to `main` occurs. Create a file `.github/workflows/deploy.yml` with these contents:
 
@@ -169,13 +227,39 @@ jobs:
           npm run deploy
 ```
 
-### Configure your repo settings
+#### Configure your repo settings
 
 Your repo settings should specify that GitHub Pages is built from the `gh-pages` branch: https://github.com/username/repo-name/settings/pages
 
-### Check out your deployed app
+#### Check out your deployed app
 
 Verify the site (replace `username` and `repo-name`): https://username.github.io/repo-name/
+
+### Custom domain name
+
+If you want to use a URL other than https://username.github.io/repo-name:
+
+Add your custom URL (e.g. `palettegame.com`) to the `Custom domain` box in the GitHub Pages settings.
+
+Configure your DNS record on your custom domain. For example, with Google Domains:
+
+Add a record with:
+
+- blank hostname
+- Type `A`
+- TTL 3600 (1 hour)
+- Data (4 entries): `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
+
+Add a record with:
+
+- `www` hostname
+- Type `CNAME`
+- TTL 3600 (1 hour)
+- Data `https://skedwards88.github.io.`
+
+https://dev.to/trentyang/how-to-setup-google-domain-for-github-pages-1p58 is a good reference.
+
+Changes take a few minutes to propagate.
 
 ## Set up linters
 
@@ -183,13 +267,18 @@ Verify the site (replace `username` and `repo-name`): https://username.github.io
 
 `npm install --save-dev prettier`
 
-Create a `.prettierrc.json` file with these contents to use the default config:
+Create a `.prettierrc.json` file with these contents (or whatever config you want) to use the default config:
 
 ```json
-{}
+{
+  "bracketSpacing": false,
+  "trailingComma": "all"
+}
 ```
 
-To run: `npx prettier --write .`
+To run: `npx prettier --ignore-path .gitignore --write .`. You can also add this as a script to package.json.
+
+You can also install the Prettier plugin in VSCode, and in the VSCode settings.json, add `"editor.defaultFormatter":"esbenp.prettier-vscode"` and `"editor.formatOnSave": true,`.
 
 ### Stylelint
 
@@ -211,7 +300,9 @@ To run: `npx stylelint "**/*.css"`
 
 To create `.eslintrc.json`, run `npx eslint --init`. Note: As of the time of writing, `eslint` is on version 8 but the corresponding react plugin (that will be installed if you tell `eslin --init` that you are using React) only supports up to version 7, so you may need to downgrade `eslint`.
 
-To run `npx eslint .`
+To run `npx eslint --ignore-path .gitignore .` You can also add this as a script to package.json.
+
+You can also install the ESLint plugin in VSCode.
 
 ### Pre-commit hook
 
