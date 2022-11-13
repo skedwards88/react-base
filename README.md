@@ -288,7 +288,11 @@ Create a `.stylelintrc.json` file with these contents to use the default config:
 
 ```json
 {
-  "extends": "stylelint-config-standard"
+  "extends": "stylelint-config-standard",
+  "rules": {
+    "selector-class-pattern": null,
+    "selector-id-pattern": null
+  }
 }
 ```
 
@@ -436,6 +440,8 @@ if (process.env.NODE_ENV !== "development" && "serviceWorker" in navigator) {
   });
 }
 ```
+
+If you are using a custom domain instead of GitHub pages, omit the `path` and `scope` conditionals and just use `"/service-worker.js"` and `""`.
 
 Note that the service worker will not be registered if you are running the server in development mode (`process.env.NODE_ENV !== "development"`).
 
