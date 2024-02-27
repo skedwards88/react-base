@@ -84,7 +84,6 @@ module.exports = {
     }),
   ],
 };
-
 ```
 
 ### Modify `package.json`
@@ -170,7 +169,7 @@ Nice reference: https://create-react-app.dev/docs/deployment/
 
 #### Install `gh-pages`
 
-  `npm install gh-pages --save-dev`
+`npm install gh-pages --save-dev`
 
 #### Modify `package.json`
 
@@ -345,64 +344,66 @@ Note: To prevent the `[webpack-dev-server] GenerateSW has been called multiple t
 
 ```javascript
 const path = require("path");
-const WorkboxPlugin = require('workbox-webpack-plugin');
+const WorkboxPlugin = require("workbox-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = (env, argv) => {
-
-  if (argv.mode === 'development') {
-    console.log('RUNNING IN DEV MODE. Service worker will not generate.')
+  if (argv.mode === "development") {
+    console.log("RUNNING IN DEV MODE. Service worker will not generate.");
   } else {
-    console.log('RUNNING IN NON-DEV MODE. Service worker will generate.')
+    console.log("RUNNING IN NON-DEV MODE. Service worker will generate.");
   }
 
   const htmlPlugin = new HtmlWebpackPlugin({
     // Need to use template because need 'root' div for react injection. templateContent doesn't play nice with title, so just use a template file instead.
-    template: "./src/index.html"
-  })
+    template: "./src/index.html",
+  });
 
   const serviceWorkerPlugin = new WorkboxPlugin.GenerateSW({
     // these options encourage the ServiceWorkers to get in there fast
     // and not allow any straggling "old" SWs to hang around
     clientsClaim: true,
     skipWaiting: true,
-  })
+  });
 
-  const plugins = argv.mode === 'development' ? [htmlPlugin] : [htmlPlugin, serviceWorkerPlugin]
+  const plugins =
+    argv.mode === "development"
+      ? [htmlPlugin]
+      : [htmlPlugin, serviceWorkerPlugin];
 
   return {
-  entry: "./src/index.js",
-  mode: "production",
-  module: {
-    rules: [
-      {
-        test: /\.(js|jsx)$/,
-        exclude: /(node_modules|bower_components)/,
-        loader: "babel-loader",
-        options: { presets: ["@babel/env"] },
-      },
-      {
-        test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
-      },
-      {
-        test: /\.(png|svg|jpg|jpeg|gif)$/i,
-        type: "asset/resource",
-      },
-    ],
-  },
-  resolve: { extensions: ["*", ".js", ".jsx"] },
-  output: {
-    publicPath: "",
-    filename: "bundle.js",
-    path: path.resolve(__dirname, "dist"),
-    clean: true, // removes unused files from output dir
-  },
-  devServer: {
-    static: "./dist",
-  },
-  plugins: plugins,
-}
+    entry: "./src/index.js",
+    mode: "production",
+    module: {
+      rules: [
+        {
+          test: /\.(js|jsx)$/,
+          exclude: /(node_modules|bower_components)/,
+          loader: "babel-loader",
+          options: { presets: ["@babel/env"] },
+        },
+        {
+          test: /\.css$/i,
+          use: ["style-loader", "css-loader"],
+        },
+        {
+          test: /\.(png|svg|jpg|jpeg|gif)$/i,
+          type: "asset/resource",
+        },
+      ],
+    },
+    resolve: { extensions: ["*", ".js", ".jsx"] },
+    output: {
+      publicPath: "",
+      filename: "bundle.js",
+      path: path.resolve(__dirname, "dist"),
+      clean: true, // removes unused files from output dir
+    },
+    devServer: {
+      static: "./dist",
+    },
+    plugins: plugins,
+  };
 };
 ```
 
@@ -545,18 +546,21 @@ Add to the plugins list in `webpack.config.js` add:
 
 ```javascript
 new CopyPlugin({
-    patterns: [
-      { from: "./src/images/favicon.svg", to: "./assets/favicon.svg" },
-      { from: "./src/images/favicon.ico", to: "./assets/favicon.ico" },
-      { from: "./src/images/icon_192.png", to: "./assets/icon_192.png" },
-      { from: "./src/images/icon_512.png", to: "./assets/icon_512.png" },
-      { from: "./src/images/maskable_icon.png", to: "./assets/maskable_icon.png" },
-      { from: "./src/manifest.json", to: "./assets/manifest.json" },
-    ],
-    options: {
-      concurrency: 100,
+  patterns: [
+    { from: "./src/images/favicon.svg", to: "./assets/favicon.svg" },
+    { from: "./src/images/favicon.ico", to: "./assets/favicon.ico" },
+    { from: "./src/images/icon_192.png", to: "./assets/icon_192.png" },
+    { from: "./src/images/icon_512.png", to: "./assets/icon_512.png" },
+    {
+      from: "./src/images/maskable_icon.png",
+      to: "./assets/maskable_icon.png",
     },
-  });
+    { from: "./src/manifest.json", to: "./assets/manifest.json" },
+  ],
+  options: {
+    concurrency: 100,
+  },
+});
 ```
 
 Update the filepaths above if needed.
@@ -637,15 +641,15 @@ export default function sendAnalytics(eventName, data = {}) {
 Wherever you want to send analytics, import that function and execute:
 
 ```javascript
-sendAnalytics(EVENT_NAME, OPTIONAL_DATA)
+sendAnalytics(EVENT_NAME, OPTIONAL_DATA);
 ```
 
 e.g.
 
 ```javascript
-sendAnalytics("install")
+sendAnalytics("install");
 ```
 
 ```javascript
-sendAnalytics("won", {numHints: 5})
+sendAnalytics("won", { numHints: 5 });
 ```
