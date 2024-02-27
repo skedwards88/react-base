@@ -1,5 +1,7 @@
 Steps to set up a React WebApp project without create-react-app.
 
+**Note:** I have extracted many of these steps into a template repo at https://github.com/skedwards88/template-app
+
 ## Run `git init` and create a repository on GitHub
 
 ## Run `npm init`
@@ -165,7 +167,7 @@ jobs:
 **NOTE**: This is the old method of deploying to GitHub Pages. This method is no longer recommended since you can now build GitHub Pages via a custom workflow instead of based on a push to main.
 
 Nice reference: https://create-react-app.dev/docs/deployment/
-  
+
 #### Install `gh-pages`
 
   `npm install gh-pages --save-dev`
@@ -607,3 +609,43 @@ The value of `"../."` for `start_url` is required for this configuration to work
 ### Lighthouse
 
 Use Lighthouse in Chrome developer tools to verify that the app is installable and meets PWA requirements.
+
+## Google Analytics
+
+Create a new property. (When logged in to Google Analytics, click the gear icon/"Admin" at the bottom of the left side bar, then click "create property".)
+
+Copy the script from the installation instructions and add it immediately after the `head` tag in `index.html`.
+
+Add a file with this script:
+
+```javascript
+export default function sendAnalytics(eventName, data = {}) {
+  const mode = process.env.NODE_ENV;
+  if (mode === "development" || mode === "test") {
+    console.log(`Not logging ${eventName} because in ${mode} mode`);
+    return;
+  }
+
+  try {
+    window.gtag("event", eventName, data);
+  } catch (error) {
+    console.log("tracking error", error);
+  }
+}
+```
+
+Wherever you want to send analytics, import that function and execute:
+
+```javascript
+sendAnalytics(EVENT_NAME, OPTIONAL_DATA)
+```
+
+e.g.
+
+```javascript
+sendAnalytics("install")
+```
+
+```javascript
+sendAnalytics("won", {numHints: 5})
+```
